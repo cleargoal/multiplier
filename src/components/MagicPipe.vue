@@ -44,15 +44,15 @@
       </div>
     </div>
 
-    <!-- Jug Visualization -->
-    <div class="jug-system">
+    <!-- Process Visualization -->
+    <div class="process-section">
       <div class="flower-section">
         <h3>🌸 Flower Watering</h3>
         <div class="flower-display">
           <div class="flower" v-for="n in 5" :key="n">🌷</div>
         </div>
         <div class="water-flow" :class="{ active: isWateringFlowers }">
-          Water flowing: {{ isWateringFlowers ? '1L/min' : '0L/min' }}
+          {{ isWateringFlowers ? '1L/min' : '0L/min' }}
         </div>
       </div>
 
@@ -61,30 +61,30 @@
         <div class="pipe-visual">
           <div class="pipe-input">1L</div>
           <div class="pipe" :class="{ active: isPipeActive }">
-            <div class="pipe-flow"></div>
             ✨ {{ multiplier }}x ✨
           </div>
           <div class="pipe-output">{{ multiplier }}L</div>
         </div>
       </div>
+    </div>
 
-      <div class="jugs-section">
-        <h3>🏺 Water Jugs</h3>
-        <div class="jugs-grid">
-          <div 
-            v-for="(jug, index) in jugs" 
-            :key="index" 
-            class="jug"
-            :class="jug.state"
-          >
-            <div class="jug-container">
-              <div class="jug-water" :style="{ height: (jug.volume / 1.15 * 100) + '%' }"></div>
-              <div class="jug-label">
-                Jug {{ index + 1 }}<br>
-                {{ jug.volume.toFixed(2) }}L<br>
-                <small>{{ jug.state }}</small>
-              </div>
-            </div>
+    <!-- Water Jugs -->
+    <div class="jugs-section">
+      <h3>🏺 Water Jugs</h3>
+      <div class="jugs-container">
+        <div 
+          v-for="(jug, index) in jugs" 
+          :key="index" 
+          class="jug"
+          :class="jug.state"
+        >
+          <div class="jug-visual">
+            <div class="jug-water" :style="{ height: (jug.volume / 1.15 * 100) + '%' }"></div>
+          </div>
+          <div class="jug-info">
+            Jug {{ index + 1 }}<br>
+            {{ jug.volume.toFixed(2) }}L<br>
+            <small>{{ jug.state }}</small>
           </div>
         </div>
       </div>
@@ -362,18 +362,26 @@ button.active {
   margin-top: 5px;
 }
 
-.jug-system {
+.process-section {
   display: grid;
-  grid-template-columns: 1fr 1fr 2fr;
-  gap: 30px;
-  margin-top: 30px;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin: 20px 0;
 }
 
-.flower-section, .magic-pipe-section, .jugs-section {
+.flower-section, .magic-pipe-section {
+  background: white;
+  border: 2px solid #bdc3c7;
+  border-radius: 10px;
+  padding: 15px;
+}
+
+.jugs-section {
   background: white;
   border: 2px solid #bdc3c7;
   border-radius: 10px;
   padding: 20px;
+  margin-top: 20px;
 }
 
 .flower-display {
@@ -448,24 +456,26 @@ button.active {
   font-weight: bold;
 }
 
-.jugs-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 20px;
+.jugs-container {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
 }
 
 .jug {
   text-align: center;
+  min-width: 80px;
 }
 
-.jug-container {
-  width: 80px;
-  height: 120px;
+.jug-visual {
+  width: 60px;
+  height: 80px;
   background: #ecf0f1;
-  border: 3px solid #95a5a6;
-  border-radius: 0 0 20px 20px;
+  border: 2px solid #95a5a6;
+  border-radius: 0 0 15px 15px;
   position: relative;
-  margin: 0 auto 10px;
+  margin: 0 auto 8px;
   overflow: hidden;
 }
 
@@ -476,7 +486,7 @@ button.active {
   right: 0;
   background: linear-gradient(to top, #3498db, #5dade2);
   transition: height 0.3s ease;
-  border-radius: 0 0 17px 17px;
+  border-radius: 0 0 13px 13px;
 }
 
 .jug.filling .jug-water {
@@ -491,13 +501,13 @@ button.active {
   background: linear-gradient(to top, #9b59b6, #bb8fce);
 }
 
-.jug-label {
-  font-size: 12px;
+.jug-info {
+  font-size: 11px;
   color: #2c3e50;
   line-height: 1.2;
 }
 
-.jug-label small {
+.jug-info small {
   text-transform: uppercase;
   font-weight: bold;
   color: #7f8c8d;
@@ -510,7 +520,7 @@ h3 {
 }
 
 @media (max-width: 768px) {
-  .jug-system {
+  .process-section {
     grid-template-columns: 1fr;
   }
   
@@ -520,6 +530,10 @@ h3 {
   
   .stats {
     justify-content: center;
+  }
+  
+  .jugs-container {
+    gap: 10px;
   }
 }
 </style>
