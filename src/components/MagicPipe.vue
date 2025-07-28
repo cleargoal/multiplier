@@ -1,7 +1,7 @@
 <template>
   <div class="magic-pipe-container">
     <h1>Magic Pipe Water System</h1>
-    
+
     <!-- Mathematical Analysis -->
     <div class="analysis-panel">
       <h2>Mathematical Analysis</h2>
@@ -72,9 +72,9 @@
     <div class="jugs-section">
       <h3>🏺 Water Jugs</h3>
       <div class="jugs-container">
-        <div 
-          v-for="(jug, index) in jugs" 
-          :key="index" 
+        <div
+          v-for="(jug, index) in jugs"
+          :key="index"
           class="jug"
           :class="jug.state"
         >
@@ -128,7 +128,7 @@ const minJugsRequired = computed(() => {
 const initializeJugs = () => {
   jugs.value = []
   const totalJugs = minJugsRequired.value
-  
+
   for (let i = 0; i < totalJugs; i++) {
     jugs.value.push({
       volume: i < 3 ? multiplier.value : 0, // Start with 3 full jugs
@@ -142,11 +142,11 @@ const initializeJugs = () => {
 const updateSimulation = () => {
   const deltaTime = 0.1 * simulationSpeed.value // 100ms intervals
   currentTime.value += deltaTime
-  
+
   // Update each jug
   jugs.value.forEach((jug, index) => {
     jug.timeInState += deltaTime
-    
+
     switch (jug.state) {
       case 'filling':
         jug.volume += flowRate * deltaTime
@@ -157,7 +157,7 @@ const updateSimulation = () => {
           totalWaterGenerated.value += multiplier.value - 1 // Net gain
         }
         break
-        
+
       case 'emptying':
         jug.volume -= flowRate * deltaTime
         if (jug.volume <= 0) {
@@ -166,7 +166,7 @@ const updateSimulation = () => {
           jug.timeInState = 0
         }
         break
-        
+
       case 'watering':
         jug.volume -= flowRate * deltaTime
         totalWaterUsed.value += flowRate * deltaTime
@@ -179,7 +179,7 @@ const updateSimulation = () => {
         break
     }
   })
-  
+
   // Manage jug assignments
   manageJugOperations()
 }
@@ -190,23 +190,23 @@ const manageJugOperations = () => {
   const fillingJugs = jugs.value.filter(jug => jug.state === 'filling')
   const wateringJugs = jugs.value.filter(jug => jug.state === 'watering')
   const emptyingJugs = jugs.value.filter(jug => jug.state === 'emptying')
-  
+
   // PERMANENT WATERING: Always ensure flowers are being watered
   if (wateringJugs.length === 0 && fullJugs.length > 0) {
     fullJugs[0].state = 'watering'
     fullJugs[0].timeInState = 0
     isWateringFlowers.value = true
   }
-  
+
   // PERMANENT FILLING: Always try to fill empty jugs if we have resources
   // We need at least 2 full jugs: 1 for watering, 1 for pipe source
   const availableFullJugs = fullJugs.length + (wateringJugs.length > 0 ? 0 : 1)
-  
+
   if (fillingJugs.length === 0 && emptyJugs.length > 0 && availableFullJugs >= 2) {
     // Find a full jug that's not being used for watering
     const sourceJug = fullJugs.find(jug => jug.state === 'full')
     const targetJug = emptyJugs[0]
-    
+
     if (sourceJug && targetJug) {
       sourceJug.state = 'emptying'
       sourceJug.timeInState = 0
@@ -215,10 +215,10 @@ const manageJugOperations = () => {
       isPipeActive.value = true
     }
   }
-  
+
   // Update pipe active status
   isPipeActive.value = fillingJugs.length > 0 || emptyingJugs.length > 0
-  
+
   // Update flower watering status
   isWateringFlowers.value = wateringJugs.length > 0
 }
@@ -226,7 +226,7 @@ const manageJugOperations = () => {
 // Control functions
 const toggleSimulation = () => {
   isRunning.value = !isRunning.value
-  
+
   if (isRunning.value) {
     simulationInterval = setInterval(updateSimulation, 100)
   } else {
@@ -265,7 +265,7 @@ onUnmounted(() => {
 
 <style scoped>
 .magic-pipe-container {
-  max-width: 1200px;
+  max-width: 1600px;
   margin: 0 auto;
   padding: 20px;
   font-family: 'Arial', sans-serif;
@@ -282,6 +282,7 @@ h1 {
   padding: 20px;
   border-radius: 10px;
   margin-bottom: 20px;
+  width: 1000px;
 }
 
 .analysis-panel h2 {
@@ -291,7 +292,7 @@ h1 {
 
 .calculation {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 15px;
 }
 
@@ -523,15 +524,15 @@ h3 {
   .process-section {
     grid-template-columns: 1fr;
   }
-  
+
   .controls {
     justify-content: center;
   }
-  
+
   .stats {
     justify-content: center;
   }
-  
+
   .jugs-container {
     gap: 10px;
   }
