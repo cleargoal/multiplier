@@ -8,8 +8,10 @@
       <div class="calculation">
         <p><strong>Magic Pipe Multiplier:</strong> {{ multiplier }}x</p>
         <p><strong>Input:</strong> 1L → <strong>Output:</strong> {{ multiplier }}L</p>
-        <p><strong>Minimum Jugs Required:</strong> {{ minJugsRequired }}</p>
+        <p><strong>Requirements:</strong> Permanent watering (1L/min) + Permanent filling</p>
+        <p><strong>Minimum Jugs Required:</strong> {{ minJugsRequired }} (3 full + 2 empty initially)</p>
         <p><strong>Net Water Gain per Cycle:</strong> {{ (multiplier - 1).toFixed(2) }}L</p>
+        <p><strong>Operation:</strong> Both watering and filling run simultaneously forever</p>
       </div>
     </div>
 
@@ -114,21 +116,23 @@ let simulationInterval = null
 
 // Computed properties
 const minJugsRequired = computed(() => {
-  // Mathematical calculation for minimum jugs needed
-  const cycleTime = multiplier.value // time to fill output jug
-  const emptyTime = multiplier.value // time to empty jug
-  return Math.ceil(cycleTime + 1) // +1 for safety buffer
+  // For eternal operation with both watering and filling simultaneously:
+  // - Time to empty 1.15L jug for flowers: 1.15 minutes
+  // - Time to fill 1L through pipe to get 1.15L: 1 minute
+  // - We need: 1 watering + 1 filling + 1 full ready + 1 empty ready + buffer
+  // Minimum = 5 jugs to ensure continuous operation
+  return 5
 })
 
 // Initialize jugs
 const initializeJugs = () => {
   jugs.value = []
-  const totalJugs = minJugsRequired.value + 1 // Add one extra for demonstration
+  const totalJugs = minJugsRequired.value
   
   for (let i = 0; i < totalJugs; i++) {
     jugs.value.push({
-      volume: i < 2 ? multiplier.value : 0, // Start with 2 full jugs
-      state: i < 2 ? 'full' : 'empty',
+      volume: i < 3 ? multiplier.value : 0, // Start with 3 full jugs
+      state: i < 3 ? 'full' : 'empty',
       timeInState: 0
     })
   }
@@ -185,17 +189,21 @@ const manageJugOperations = () => {
   const emptyJugs = jugs.value.filter(jug => jug.state === 'empty')
   const fillingJugs = jugs.value.filter(jug => jug.state === 'filling')
   const wateringJugs = jugs.value.filter(jug => jug.state === 'watering')
+  const emptyingJugs = jugs.value.filter(jug => jug.state === 'emptying')
   
-  // Always prioritize flower watering
+  // PERMANENT WATERING: Always ensure flowers are being watered
   if (wateringJugs.length === 0 && fullJugs.length > 0) {
     fullJugs[0].state = 'watering'
     fullJugs[0].timeInState = 0
     isWateringFlowers.value = true
   }
   
-  // Start filling if we have empty jugs and full jugs for the pipe
-  if (fillingJugs.length === 0 && emptyJugs.length > 0 && fullJugs.length > 1) {
-    // Use one full jug to fill an empty one through the magic pipe
+  // PERMANENT FILLING: Always try to fill empty jugs if we have resources
+  // We need at least 2 full jugs: 1 for watering, 1 for pipe source
+  const availableFullJugs = fullJugs.length + (wateringJugs.length > 0 ? 0 : 1)
+  
+  if (fillingJugs.length === 0 && emptyJugs.length > 0 && availableFullJugs >= 2) {
+    // Find a full jug that's not being used for watering
     const sourceJug = fullJugs.find(jug => jug.state === 'full')
     const targetJug = emptyJugs[0]
     
@@ -206,9 +214,13 @@ const manageJugOperations = () => {
       targetJug.timeInState = 0
       isPipeActive.value = true
     }
-  } else {
-    isPipeActive.value = fillingJugs.length > 0
   }
+  
+  // Update pipe active status
+  isPipeActive.value = fillingJugs.length > 0 || emptyingJugs.length > 0
+  
+  // Update flower watering status
+  isWateringFlowers.value = wateringJugs.length > 0
 }
 
 // Control functions
